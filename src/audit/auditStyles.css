@@ -1,0 +1,12 @@
+.responsive-table {
+  overflow-x: auto;
+  max-width: 100%;
+
+  @media (max-width: 768px) {
+    .MuiTableCell-root {
+      display: block;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+  }
+}
