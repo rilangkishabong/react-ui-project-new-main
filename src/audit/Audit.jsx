@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 
@@ -12,12 +12,34 @@ import Select from "@mui/material/Select";
 export { Audit };
 
 function Audit() {
-  const users = useSelector((x) => x.users.list);
+  const [timeFormat, setTimeFormat] = useState("12"); // Initial state, defaulting to 12-hour format
+
+  const users = useSelector((x) => {
+    console.log(x.users.list);
+    return x.users.list;
+  });
   const dispatch = useDispatch();
 
   useEffect(() => {
     dispatch(userActions.getAll());
   }, []);
+
+  const getFormattedTime = (value) => {
+    const createdAt = new Date(value);
+
+    if (timeFormat === "12") {
+      return createdAt.toLocaleTimeString("en-US");
+    } else if (timeFormat === "24") {
+      return createdAt.toLocaleTimeString("en-US", { hour12: false });
+    }
+
+    return value;
+  };
+
+  const handleTimeFormatChange = (event) => {
+    setTimeFormat(event.target.value);
+  };
+
   console.log("UsersList: ", users);
   return (
     <>
@@ -26,17 +48,17 @@ function Audit() {
         <Select
           labelId="demo-simple-select-label"
           id="demo-simple-select"
-          value={12}
+          value={timeFormat}
           label="Date Format"
-          //   onChange={handleChange}
+          onChange={handleTimeFormatChange}
         >
-          <MenuItem value={12}>12 Hours</MenuItem>
-          <MenuItem value={24}>24 Hours</MenuItem>
+          <MenuItem value="12">12 Hours</MenuItem>
+          <MenuItem value="24">24 Hours</MenuItem>
         </Select>
       </FormControl>
       <div className="responsive-table">
         <CustomDataTable
-          rows={users?.value && users.value}
+          rows={users?.value}
           columns={[
             {
               name: "firstName",
@@ -65,6 +87,16 @@ function Audit() {
               label: "Created Date",
               options: {
                 filter: true,
+              },
+            },
+            {
+              name: "createdTime",
+              label: "Created Time",
+              options: {
+                customBodyRender: (value) => {
+                  const formattedTime = getFormattedTime(value);
+                  return formattedTime;
+                },
               },
             },
           ]}
